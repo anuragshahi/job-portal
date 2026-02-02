@@ -1,0 +1,37 @@
+# Dependencies
+/node_modules
+
+# Build outputs
+/dist
+/tmp
+/out-tsc
+
+# IDEs and editors
+/.idea
+/.vscode
+*.swp
+*.swo
+*~
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Testing
+/coverage
+
+# Caches
+.angular/cache
+.npm
+.eslintcache
+
+# Environment files (keep templates, ignore local)
+.env
+.env.local
+
+# Logs
+npm-debug.log
+yarn-error.log
+
+# TypeScript
+*.tsbuildinfo

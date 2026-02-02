@@ -1,0 +1,88 @@
+
+{
+  "realm": "my-realm",
+  "enabled": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "ADMIN",
+        "description": "Administrator"
+      },
+      {
+        "name": "USER",
+        "description": "Standard User"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "admin-service-client",
+      "clientAuthenticatorType": "client-secret",
+      "secret": "admin-secret",
+      "serviceAccountsEnabled": true,
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "fullScopeAllowed": true
+    },
+    {
+      "clientId": "bff-client",
+      "clientAuthenticatorType": "client-secret",
+      "secret": "mysecret",
+      "redirectUris": [
+        "http://localhost:8081/login/oauth2/code/keycloak"
+      ],
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": true,
+      "fullScopeAllowed": true
+    },
+    {
+      "clientId": "internal-client",
+      "clientAuthenticatorType": "client-secret",
+      "secret": "my-internal-secret",
+      "protocol": "openid-connect",
+      "serviceAccountsEnabled": true
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "email": "admin@example.com",
+      "firstName": "Admin",
+      "lastName": "User",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password"
+        }
+      ],
+      "realmRoles": [
+        "ADMIN",
+        "default-roles-my-realm"
+      ]
+    },
+    {
+      "username": "user",
+      "enabled": true,
+      "email": "user@example.com",
+      "firstName": "User",
+      "lastName": "Name",
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password"
+        }
+      ],
+      "realmRoles": [
+        "default-roles-my-realm"
+      ]
+    }
+  ]
+}

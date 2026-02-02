@@ -1,0 +1,62 @@
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.mat-toolbar-row {
+  display: flex;
+  align-items: center;
+}
+
+.content-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 500px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.status-chip {
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 16px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.status-created { background-color: #e3f2fd; color: #1565c0; }
+.status-pending { background-color: #fff3e0; color: #ef6c00; }
+.status-confirmed { background-color: #e8f5e9; color: #2e7d32; }
+.status-shipped { background-color: #f3e5f5; color: #7b1fa2; }
+.status-delivered { background-color: #e0f2f1; color: #00695c; }
+.status-canceled { background-color: #ffebee; color: #c62828; }

@@ -1,0 +1,2 @@
+com.example.common.security.config.ResourceServerSecurityAutoConfiguration
+com.example.common.security.openapi.OpenApiAutoConfiguration

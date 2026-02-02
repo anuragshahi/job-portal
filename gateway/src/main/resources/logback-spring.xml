@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProperty scope="context" name="appName" source="spring.application.name" defaultValue="gateway"/>
+
+    <!-- Console appender with trace correlation (default) -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) [%thread] [%X{traceId:-},%X{spanId:-}] %cyan(%logger{36}) - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- JSON console appender for container/production environments -->
+    <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeMdcKeyName>traceId</includeMdcKeyName>
+            <includeMdcKeyName>spanId</includeMdcKeyName>
+            <customFields>{"service":"${appName}"}</customFields>
+        </encoder>
+    </appender>
+
+    <!-- Loki appender for centralized log aggregation -->
+    <springProfile name="loki">
+        <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+            <http>
+                <url>${LOKI_URL:-http://localhost:3100/loki/api/v1/push}</url>
+            </http>
+            <format>
+                <label>
+                    <pattern>service=${appName},level=%level</pattern>
+                </label>
+                <message class="com.github.loki4j.logback.JsonLayout"/>
+            </format>
+        </appender>
+
+        <appender name="ASYNC_LOKI" class="ch.qos.logback.classic.AsyncAppender">
+            <appender-ref ref="LOKI"/>
+            <queueSize>512</queueSize>
+            <discardingThreshold>0</discardingThreshold>
+            <neverBlock>true</neverBlock>
+        </appender>
+    </springProfile>
+
+    <!-- Default profile: console logging -->
+    <springProfile name="default | dev">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!-- JSON profile: structured logging for containers -->
+    <springProfile name="json">
+        <root level="INFO">
+            <appender-ref ref="JSON_CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!-- Loki profile: send logs to Loki + console -->
+    <springProfile name="loki">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_LOKI"/>
+        </root>
+    </springProfile>
+
+    <!-- Reduce framework noise -->
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="org.hibernate" level="WARN"/>
+    <logger name="org.apache" level="WARN"/>
+    <logger name="io.netty" level="WARN"/>
+    <logger name="reactor" level="WARN"/>
+
+    <!-- Application logging -->
+    <logger name="com.example" level="DEBUG"/>
+</configuration>
