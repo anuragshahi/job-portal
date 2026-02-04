@@ -541,6 +541,7 @@ npm test                       # Run tests
 | [BFF Comparison](docs/bff_comparison_analysis.md)         | Why decoupled BFF over gateway-integrated      |
 | [Defense in Depth](docs/defense_in_depth_vs_perimeter.md) | Zero Trust architecture rationale              |
 | [Token Refresh](docs/proactive_token_refresh.md)          | Proactive refresh strategy                     |
+| [Dual Session Strategy](docs/dual_session_strategy.md)    | Internal vs External session management        |
 | [Development Roadmap](docs/TODO.md)                       | Development Roadmap                            |
 
 ### Keycloak Configuration
