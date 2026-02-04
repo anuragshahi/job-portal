@@ -557,6 +557,12 @@ npm test                       # Run tests
 
 ---
 
+## Author & Maintainer
+
+**Mohammad Awwaad**  
+*Senior Technical Architect* @ **InnovAxons**  
+GitLab: [@mawwaad](https://gitlab.com/mawwaad)
+
 ## License
 
-This project is provided as a template for building secure microservices architectures.
+Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
