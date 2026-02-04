@@ -542,6 +542,7 @@ npm test                       # Run tests
 | [Defense in Depth](docs/defense_in_depth_vs_perimeter.md) | Zero Trust architecture rationale              |
 | [Token Refresh](docs/proactive_token_refresh.md)          | Proactive refresh strategy                     |
 | [Dual Session Strategy](docs/dual_session_strategy.md)    | Internal vs External session management        |
+| [AJAX Request Handling](docs/ajax_request_handling.md)    | 401 vs 302 Redirect logic                      |
 | [Development Roadmap](docs/TODO.md)                       | Development Roadmap                            |
 
 ### Keycloak Configuration
