@@ -25,6 +25,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -36,6 +38,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestConfig.class)
 class KeycloakIntegrationTest {
+
+    private static final Logger log = LoggerFactory.getLogger(KeycloakIntegrationTest.class);
 
     @LocalServerPort
     private int port;
@@ -53,20 +57,25 @@ class KeycloakIntegrationTest {
         webTestClient = WebTestClient.bindToServer()
                 .baseUrl("http://localhost:" + port)
                 .build();
+        
+        cleanupProfile();
     }
 
-    @Test
-    void testRedirectToKeycloakForProtectedResource() {
-        // Test that accessing a protected resource without a session redirects to Keycloak
-        webTestClient.get().uri("/bff/user")
-                .exchange()
-                .expectStatus().isFound() // 302 Redirect
-                .expectHeader().value("Location", loc -> 
-                    assertThat(loc).contains("/oauth2/authorization/keycloak"));
+    private void cleanupProfile() {
+        try {
+            log.debug("Attempting to clean up existing profile before test...");
+            String sessionJwt = obtainSessionJwt();
+            // We use exchange() and don't assert status because a 404 is perfectly fine 
+            // (it just means there was no leftover data to clean up).
+            webTestClient.delete().uri("/bff/api/profile")
+                    .cookie(SessionConstants.COOKIE_BFF_SESSION, sessionJwt)
+                    .exchange();
+        } catch (Exception e) {
+            log.warn("Pre-test cleanup skipped: {}. This is normal if the profile service or Keycloak are not yet reachable, or if no profile exists.", e.getMessage());
+        }
     }
 
-    @Test
-    void testProxyToProfileService() {
+    private String obtainSessionJwt() {
         // 1. Get Token from Keycloak
         String tokenUrl = "http://localhost:8080/realms/my-realm/protocol/openid-connect/token";
         
@@ -118,9 +127,25 @@ class KeycloakIntegrationTest {
         OidcUser oidcUser = new DefaultOidcUser(Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")), idToken, "sub");
         OAuth2AuthenticationToken auth = new OAuth2AuthenticationToken(oidcUser, oidcUser.getAuthorities(), "keycloak");
         
-        String sessionJwt = jwtUtils.issueSessionJwt(jti, auth);
+        return jwtUtils.issueSessionJwt(jti, auth);
+    }
 
-        // 4. Perform Request: Create Profile (POST)
+    @Test
+    void testRedirectToKeycloakForProtectedResource() {
+        // Test that accessing a protected resource without a session redirects to Keycloak
+        webTestClient.get().uri("/bff/user")
+                .exchange()
+                .expectStatus().isFound() // 302 Redirect
+                .expectHeader().value("Location", loc -> 
+                    assertThat(loc).contains("/oauth2/authorization/keycloak"));
+    }
+
+    @Test
+    void testProxyToProfileService() {
+        // 1. Obtain Session JWT
+        String sessionJwt = obtainSessionJwt();
+
+        // 2. Perform Request: Create Profile (POST)
         Map<String, Object> profileData = Map.of(
             "firstName", "Integration",
             "lastName", "Test",
@@ -138,7 +163,7 @@ class KeycloakIntegrationTest {
                 .expectBody()
                 .jsonPath("$.firstName").isEqualTo("Integration");
 
-        // 5. Perform Request: Get Profile (GET)
+        // 3. Perform Request: Get Profile (GET)
         webTestClient.get().uri("/bff/api/profile")
                 .cookie(SessionConstants.COOKIE_BFF_SESSION, sessionJwt)
                 .exchange()
@@ -146,7 +171,7 @@ class KeycloakIntegrationTest {
                 .expectBody()
                 .jsonPath("$.lastName").isEqualTo("Test");
 
-        // 5b. Perform Request: Get Profile (GET) with Slash (Browser Simulation)
+        // 4. Perform Request: Get Profile (GET) with Slash (Browser Simulation)
         // This validates that the Gateway StripPrefix and Profile Service handling work for trailing slash
         webTestClient.get().uri("/bff/api/profile/")
                 .cookie(SessionConstants.COOKIE_BFF_SESSION, sessionJwt)
@@ -155,16 +180,17 @@ class KeycloakIntegrationTest {
                 .expectBody()
                 .jsonPath("$.lastName").isEqualTo("Test");
 
-        // 6. Perform Request: Delete Profile (DELETE)
+        // 5. Perform Request: Delete Profile (DELETE)
         webTestClient.delete().uri("/bff/api/profile")
                 .cookie(SessionConstants.COOKIE_BFF_SESSION, sessionJwt)
                 .exchange()
                 .expectStatus().isNoContent();
 
-        // 7. Verify Deletion (GET -> 404)
+        // 6. Verify Deletion (GET -> 404)
         webTestClient.get().uri("/bff/api/profile")
                 .cookie(SessionConstants.COOKIE_BFF_SESSION, sessionJwt)
                 .exchange()
                 .expectStatus().isNotFound();
     }
+
 }
