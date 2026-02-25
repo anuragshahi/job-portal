@@ -6,8 +6,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { OrdersService } from './orders.service';
-import { Order, OrderStatus } from './order.model';
+import { Order } from './order.model';
 
 @Component({
   selector: 'app-orders',
@@ -20,7 +21,8 @@ import { Order, OrderStatus } from './order.model';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatPaginatorModule
   ],
   template: `
     <div class="header">
@@ -74,6 +76,15 @@ import { Order, OrderStatus } from './order.model';
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
+        
+        <mat-paginator
+          [length]="totalElements()"
+          [pageSize]="pageSize()"
+          [pageSizeOptions]="[5, 10, 20, 50]"
+          [pageIndex]="pageIndex()"
+          (page)="onPageChange($event)"
+          showFirstLastButtons>
+        </mat-paginator>
       </mat-card>
     }
   `,
@@ -118,6 +129,18 @@ import { Order, OrderStatus } from './order.model';
     table {
       width: 100%;
     }
+    
+    .status-chip {
+      padding: 4px 8px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .status-created { background-color: #e3f2fd; color: #1976d2; }
+    .status-processing { background-color: #fff3e0; color: #f57c00; }
+    .status-completed { background-color: #e8f5e9; color: #388e3c; }
+    .status-cancelled { background-color: #ffebee; color: #d32f2f; }
   `]
 })
 export class OrdersComponent implements OnInit {
@@ -127,6 +150,11 @@ export class OrdersComponent implements OnInit {
   loading = signal(true);
   creating = signal(false);
   orders = signal<Order[]>([]);
+  
+  // Pagination state
+  totalElements = signal(0);
+  pageSize = signal(20);
+  pageIndex = signal(0);
 
   displayedColumns = ['orderNumber', 'status', 'creationTime'];
 
@@ -137,8 +165,9 @@ export class OrdersComponent implements OnInit {
   private async loadOrders(): Promise<void> {
     this.loading.set(true);
     try {
-      const orders = await this.ordersService.getOrders();
-      this.orders.set(orders);
+      const page = await this.ordersService.getOrders(this.pageIndex(), this.pageSize());
+      this.orders.set(page.content);
+      this.totalElements.set(page.totalElements);
     } catch (error) {
       this.snackBar.open('Failed to load orders', 'Dismiss', { duration: 3000 });
     } finally {
@@ -149,13 +178,21 @@ export class OrdersComponent implements OnInit {
   async createOrder(): Promise<void> {
     this.creating.set(true);
     try {
-      const newOrder = await this.ordersService.createOrder();
-      this.orders.update(orders => [newOrder, ...orders]);
-      this.snackBar.open(`Order ${newOrder.orderNumber} created`, 'Dismiss', { duration: 3000 });
+      await this.ordersService.createOrder();
+      this.snackBar.open(`Order created`, 'Dismiss', { duration: 3000 });
+      // Reload current page to show new order (or reset to first page)
+      this.pageIndex.set(0);
+      await this.loadOrders();
     } catch (error) {
       this.snackBar.open('Failed to create order', 'Dismiss', { duration: 3000 });
     } finally {
       this.creating.set(false);
     }
+  }
+  
+  async onPageChange(event: PageEvent): Promise<void> {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+    await this.loadOrders();
   }
 }

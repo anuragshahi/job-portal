@@ -84,15 +84,14 @@ class OrdersIntegrationTest {
                     assertThat(order.getCreatedBy()).isNotNull();
                 });
 
-        // 3. Get Orders
+        // 3. Get Orders (Paginated)
         webTestClient.get().uri("/api")
                 .header("Authorization", "Bearer " + accessToken)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBodyList(OrderResponse.class)
-                .value(orders -> {
-                    assertThat(orders).hasSizeGreaterThanOrEqualTo(1);
-                    assertThat(orders.getFirst().getOrderNumber()).isEqualTo("ORD-999");
-                });
+                .expectBody()
+                .jsonPath("$.content").isArray()
+                .jsonPath("$.content[0].orderNumber").isEqualTo("ORD-999")
+                .jsonPath("$.totalElements").value(total -> assertThat((Integer) total).isGreaterThanOrEqualTo(1));
     }
 }

@@ -6,11 +6,10 @@ import com.example.orderservice.model.OrderEntity;
 import com.example.orderservice.model.OrderStatus;
 import com.example.orderservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,10 +30,8 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public List<OrderResponse> getOrdersByUserId(String userId) {
-        return orderRepository.findByCreatedBy(userId)
-                .stream()
-                .map(OrderResponse::fromEntity)
-                .collect(Collectors.toList());
+    public Page<OrderResponse> getOrdersByUserId(String userId, Pageable pageable) {
+        return orderRepository.findByCreatedBy(userId, pageable)
+                .map(OrderResponse::fromEntity);
     }
 }
