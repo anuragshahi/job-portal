@@ -15,9 +15,10 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -41,7 +42,7 @@ import java.util.Map;
  * 1. <strong>Custom Session:</strong> The architecture uses a custom {@code BFF_SESSION} cookie
  *    and explicit Redis storage, bypassing standard {@code JSESSIONID} mechanisms.<br>
  * 2. <strong>Stability:</strong> Spring Security's internal {@code TokenResponseClient} implementations
- *    change frequently between versions. A manual {@code WebClient} implementation ensures
+ *    change frequently between versions. A manual {@code RestClient} implementation ensures
  *    stability and full control over the refresh logic.</p>
  */
 @Component
@@ -51,16 +52,16 @@ public class TokenRefreshFilter extends OncePerRequestFilter {
     private final long refreshBufferSeconds;
     private final SessionRedisService sessionService;
     private final JwtUtils jwtUtils;
-    private final WebClient webClient;
+    private final RestClient restClient;
 
     public TokenRefreshFilter(SessionRedisService sessionService,
                               JwtUtils jwtUtils,
-                              WebClient.Builder webClientBuilder,
+                              RestClient.Builder restClientBuilder,
                               @org.springframework.beans.factory.annotation.Value("${bff.token.refresh-buffer-seconds}") long refreshBufferSeconds) {
         this.sessionService = sessionService;
         this.jwtUtils = jwtUtils;
         // Using Builder allows us to inject a mock/custom builder in tests
-        this.webClient = webClientBuilder.build();
+        this.restClient = restClientBuilder.build();
         this.refreshBufferSeconds = refreshBufferSeconds;
     }
 
@@ -126,16 +127,18 @@ public class TokenRefreshFilter extends OncePerRequestFilter {
     }
 
     private void refreshTokens(OAuth2AuthorizedClient client, String jti) {
-        Map tokenResponse = webClient.post()
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.add("grant_type", "refresh_token");
+        formData.add("refresh_token", client.getRefreshToken().getTokenValue());
+        formData.add("client_id", client.getClientRegistration().getClientId());
+        formData.add("client_secret", client.getClientRegistration().getClientSecret());
+
+        Map tokenResponse = restClient.post()
                 .uri(client.getClientRegistration().getProviderDetails().getTokenUri())
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                .body(BodyInserters.fromFormData("grant_type", "refresh_token")
-                        .with("refresh_token", client.getRefreshToken().getTokenValue())
-                        .with("client_id", client.getClientRegistration().getClientId())
-                        .with("client_secret", client.getClientRegistration().getClientSecret()))
+                .body(formData)
                 .retrieve()
-                .bodyToMono(Map.class)
-                .block();
+                .body(Map.class);
 
         if (tokenResponse != null) {
             String newAccessTokenValue = (String) tokenResponse.get("access_token");

@@ -6,6 +6,7 @@ import com.example.bff.util.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
@@ -22,8 +23,9 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestClient;
 
 import java.io.IOException;
 import java.net.URI;
@@ -55,12 +57,13 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/bff")
 @RequiredArgsConstructor
+@Slf4j
 public class BffController {
 
     private final OAuth2AuthorizedClientService clientService;
     private final SessionRedisService sessionService;
     private final JwtUtils jwtUtils;
-    private final WebClient.Builder webClientBuilder;
+    private final RestClient.Builder restClientBuilder;
     private final Environment env;
 
     @Value("${bff.gateway.url}")
@@ -255,10 +258,12 @@ public class BffController {
         String queryString = request.getQueryString();
         URI targetUri = URI.create(gatewayUrl + path + (queryString != null ? "?" + queryString : ""));
 
-        WebClient wc = webClientBuilder.build();
+        log.debug("Proxying request to: {}", targetUri);
+
+        RestClient rc = restClientBuilder.build();
 
         try {
-            return wc.method(HttpMethod.valueOf(request.getMethod()))
+            return rc.method(HttpMethod.valueOf(request.getMethod()))
                     .uri(targetUri)
                     .headers(h -> {
                         h.setBearerAuth(accessToken);
@@ -268,13 +273,16 @@ public class BffController {
                             h.setContentType(MediaType.parseMediaType(request.getContentType()));
                         }
                     })
-                    .bodyValue(body != null ? body : new byte[0])
+                    .body(body != null ? body : new byte[0])
                     .retrieve()
-                    .toEntity(byte[].class)
-                    .block();
-        } catch (WebClientResponseException e) {
+                    .toEntity(byte[].class);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            log.error("Proxy request failed. Target: {}, Status: {}, Body: {}", targetUri, e.getStatusCode(), e.getResponseBodyAsString());
             return ResponseEntity.status(e.getStatusCode())
                     .body(e.getResponseBodyAsByteArray());
+        } catch (Exception e) {
+            log.error("Unexpected error during proxy request to {}", targetUri, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -304,23 +312,28 @@ public class BffController {
         String queryString = request.getQueryString();
         URI targetUri = URI.create(gatewayUrl + targetPath + (queryString != null ? "?" + queryString : ""));
 
-        WebClient wc = webClientBuilder.build();
+        log.debug("Proxying public request to: {}", targetUri);
+
+        RestClient rc = restClientBuilder.build();
 
         try {
-            return wc.method(HttpMethod.valueOf(request.getMethod()))
+            return rc.method(HttpMethod.valueOf(request.getMethod()))
                     .uri(targetUri)
                     .headers(h -> {
                         if (request.getContentType() != null) {
                             h.setContentType(MediaType.parseMediaType(request.getContentType()));
                         }
                     })
-                    .bodyValue(body != null ? body : new byte[0])
+                    .body(body != null ? body : new byte[0])
                     .retrieve()
-                    .toEntity(byte[].class)
-                    .block();
-        } catch (WebClientResponseException e) {
+                    .toEntity(byte[].class);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            log.error("Public proxy request failed. Target: {}, Status: {}, Body: {}", targetUri, e.getStatusCode(), e.getResponseBodyAsString());
             return ResponseEntity.status(e.getStatusCode())
                     .body(e.getResponseBodyAsByteArray());
+        } catch (Exception e) {
+            log.error("Unexpected error during public proxy request to {}", targetUri, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 

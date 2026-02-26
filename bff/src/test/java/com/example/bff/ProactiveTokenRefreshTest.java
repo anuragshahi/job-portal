@@ -18,7 +18,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -41,8 +41,8 @@ class ProactiveTokenRefreshTest {
         sessionService = mock(SessionRedisService.class);
         jwtUtils = mock(JwtUtils.class);
 
-        // Configure WebClient to hit MockWebServer
-        WebClient.Builder builder = WebClient.builder().baseUrl(mockWebServer.url("/").toString());
+        // Configure RestClient to hit MockWebServer
+        RestClient.Builder builder = RestClient.builder().baseUrl(mockWebServer.url("/").toString());
 
         // Use 60 seconds as the refresh buffer (same as default in application.properties)
         filter = new TokenRefreshFilter(sessionService, jwtUtils, builder, 60L);

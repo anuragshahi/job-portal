@@ -5,34 +5,32 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 @Service
 @RequiredArgsConstructor
 public class KeycloakAdminClient {
 
-    private final WebClient.Builder webClientBuilder;
+    private final RestClient.Builder restClientBuilder;
 
     @Value("${keycloak.admin-service.url}")
     private String adminServiceUrl;
 
     public String createUser(UserRegistrationDTO dto, String bearerToken) {
-        return webClientBuilder.build().post()
+        return restClientBuilder.build().post()
                 .uri(adminServiceUrl + "/users")
                 .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                .bodyValue(dto)
+                .body(dto)
                 .retrieve()
-                .bodyToMono(String.class)
-                .block();
+                .body(String.class);
     }
 
     public void deleteUser(String userId, String bearerToken) {
-        webClientBuilder.build().delete()
+        restClientBuilder.build().delete()
                 .uri(adminServiceUrl + "/users/" + userId)
                 .header(HttpHeaders.AUTHORIZATION, bearerToken)
                 .retrieve()
-                .toBodilessEntity()
-                .block();
+                .toBodilessEntity();
     }
 
     /**
@@ -54,11 +52,10 @@ public class KeycloakAdminClient {
                 "sendPasswordEmail", true
         );
 
-        return webClientBuilder.build().post()
+        return restClientBuilder.build().post()
                 .uri(adminServiceUrl + "/users/register")
-                .bodyValue(request)
+                .body(request)
                 .retrieve()
-                .bodyToMono(String.class)
-                .block();
+                .body(String.class);
     }
 }
