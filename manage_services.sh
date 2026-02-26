@@ -68,6 +68,10 @@ start_services() {
          exit 1
     fi
 
+    start_apps
+}
+
+start_apps() {
     # ==========================================
     # 5. Start Spring Boot Services
     # ==========================================
@@ -118,25 +122,7 @@ start_services() {
 stop_services() {
     echo -e "${YELLOW}Stopping SEC Microservices Environment...${NC}"
 
-    stop_process_on_port() {
-        PORT=$1
-        NAME=$2
-        PID=$(lsof -Pi :$PORT -sTCP:LISTEN -t)
-        if [ -n "$PID" ]; then
-            echo -e "${YELLOW}Stopping $NAME (PID: $PID)...${NC}"
-            kill $PID
-            echo -e "${GREEN}$NAME stopped.${NC}"
-        else
-            echo -e "${GREEN}$NAME is not running.${NC}"
-        fi
-    }
-
-    # Stop Spring Boot Apps
-    stop_process_on_port 8081 "BFF Service"
-    stop_process_on_port 8888 "Gateway Service"
-    stop_process_on_port 8082 "Profile Service"
-    stop_process_on_port 8083 "Order Service"
-    stop_process_on_port 8084 "Keycloak Admin Service"
+    stop_apps
 
     # Stop Keycloak
     echo -e "\n${YELLOW}Stopping Keycloak...${NC}"
@@ -159,6 +145,28 @@ stop_services() {
     echo -e "${GREEN}Order DB stopped.${NC}"
     
     echo -e "\n${GREEN}All services stopped.${NC}"
+}
+
+stop_apps() {
+    stop_process_on_port() {
+        PORT=$1
+        NAME=$2
+        PID=$(lsof -Pi :$PORT -sTCP:LISTEN -t)
+        if [ -n "$PID" ]; then
+            echo -e "${YELLOW}Stopping $NAME (PID: $PID)...${NC}"
+            kill $PID
+            echo -e "${GREEN}$NAME stopped.${NC}"
+        else
+            echo -e "${GREEN}$NAME is not running.${NC}"
+        fi
+    }
+
+    # Stop Spring Boot Apps
+    stop_process_on_port 8081 "BFF Service"
+    stop_process_on_port 8888 "Gateway Service"
+    stop_process_on_port 8082 "Profile Service"
+    stop_process_on_port 8083 "Order Service"
+    stop_process_on_port 8084 "Keycloak Admin Service"
 }
 
 test_services() {
@@ -199,11 +207,16 @@ case "$1" in
         sleep 2
         start_services
         ;;
+    restart-apps)
+        stop_apps
+        sleep 2
+        start_apps
+        ;;
     test)
         test_services
         ;;
     *)
-        echo -e "${RED}Usage: $0 {start|stop|restart|test}${NC}"
+        echo -e "${RED}Usage: $0 {start|stop|restart|restart-apps|test}${NC}"
         exit 1
         ;;
 esac
