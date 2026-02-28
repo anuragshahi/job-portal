@@ -19,6 +19,7 @@ run.log
 *.iml
 *.ipr
 
+
 ### OS
 .DS_Store
 desktop.ini
@@ -26,3 +27,8 @@ desktop.ini
 ### Environment
 .env
 *.env.local
+
+### VS Code and Antigravity ###
+.vscode
+.antigravity
+.agents
