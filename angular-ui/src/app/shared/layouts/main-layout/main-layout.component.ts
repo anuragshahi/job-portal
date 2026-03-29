@@ -1,5 +1,5 @@
 import { Component, inject, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule, RouterOutlet } from '@angular/router';
 import { MatSidenavModule, MatSidenav } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -10,10 +10,8 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
-  selector: 'app-main-layout',
-  standalone: true,
-  imports: [
-    CommonModule,
+    selector: 'app-main-layout',
+    imports: [
     RouterModule,
     RouterOutlet,
     MatSidenavModule,
@@ -21,8 +19,8 @@ import { AuthService } from '../../../core/services/auth.service';
     MatListModule,
     MatIconModule,
     MatButtonModule
-  ],
-  template: `
+],
+    template: `
     <mat-sidenav-container class="sidenav-container">
       <mat-sidenav #sidenav [mode]="isMobile ? 'over' : 'side'" [opened]="!isMobile" class="sidenav">
         <mat-toolbar color="primary">
@@ -67,7 +65,7 @@ import { AuthService } from '../../../core/services/auth.service';
       </mat-sidenav-content>
     </mat-sidenav-container>
   `,
-  styles: [`
+    styles: [`
     .sidenav-container {
       height: 100vh;
     }

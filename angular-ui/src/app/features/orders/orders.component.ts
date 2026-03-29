@@ -11,20 +11,19 @@ import { OrdersService } from './orders.service';
 import { Order } from './order.model';
 
 @Component({
-  selector: 'app-orders',
-  standalone: true,
-  imports: [
-    CommonModule,
-    DatePipe,
-    MatCardModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
-    MatPaginatorModule
-  ],
-  template: `
+    selector: 'app-orders',
+    imports: [
+        CommonModule,
+        DatePipe,
+        MatCardModule,
+        MatTableModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressSpinnerModule,
+        MatSnackBarModule,
+        MatPaginatorModule
+    ],
+    template: `
     <div class="header">
       <h1>Orders</h1>
       <button mat-raised-button color="primary" (click)="createOrder()" [disabled]="creating()">
@@ -88,7 +87,7 @@ import { Order } from './order.model';
       </mat-card>
     }
   `,
-  styles: [`
+    styles: [`
     .header {
       display: flex;
       justify-content: space-between;

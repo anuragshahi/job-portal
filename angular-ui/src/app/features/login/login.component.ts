@@ -7,16 +7,15 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [
-    RouterModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule
-  ],
-  template: `
+    selector: 'app-login',
+    imports: [
+        RouterModule,
+        MatCardModule,
+        MatButtonModule,
+        MatIconModule,
+        MatProgressSpinnerModule
+    ],
+    template: `
     <div class="login-container">
       <mat-card class="login-card">
         <mat-card-header>
@@ -45,7 +44,7 @@ import { AuthService } from '../../core/services/auth.service';
       </mat-card>
     </div>
   `,
-  styles: [`
+    styles: [`
     .login-container {
       display: flex;
       justify-content: center;

@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,10 +16,8 @@ import { AuthService } from '../../core/services/auth.service';
 import { ConfirmDialogComponent } from './confirm-dialog.component';
 
 @Component({
-  selector: 'app-profile',
-  standalone: true,
-  imports: [
-    CommonModule,
+    selector: 'app-profile',
+    imports: [
     FormsModule,
     MatCardModule,
     MatFormFieldModule,
@@ -30,8 +28,8 @@ import { ConfirmDialogComponent } from './confirm-dialog.component';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatDialogModule
-  ],
-  template: `
+],
+    template: `
     <h1>Profile</h1>
 
     @if (loading()) {
@@ -110,7 +108,7 @@ import { ConfirmDialogComponent } from './confirm-dialog.component';
       </mat-card>
     }
   `,
-  styles: [`
+    styles: [`
     .loading-container {
       display: flex;
       justify-content: center;

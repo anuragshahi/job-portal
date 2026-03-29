@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,17 +8,15 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RegisterService } from './register.service';
 
 @Component({
-  selector: 'app-confirm',
-  standalone: true,
-  imports: [
-    CommonModule,
+    selector: 'app-confirm',
+    imports: [
     RouterModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule
-  ],
-  template: `
+],
+    template: `
     <div class="confirm-container">
       <mat-card class="confirm-card">
         @if (loading()) {
@@ -55,7 +53,7 @@ import { RegisterService } from './register.service';
       </mat-card>
     </div>
   `,
-  styles: [`
+    styles: [`
     .confirm-container {
       display: flex;
       justify-content: center;

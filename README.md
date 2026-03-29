@@ -1,6 +1,6 @@
 # Enterprise Spring Microservices Template
 
-A production-ready secure microservices template using **Spring Boot 4.x**, **Keycloak**, and **Angular 18**. Designed to support both Web (BFF pattern) and Mobile (direct JWT) applications with enterprise-grade security.
+A production-ready secure microservices template using **Spring Boot 4.x**, **Keycloak**, and **Angular 21**. Designed to support both Web (BFF pattern) and Mobile (direct JWT) applications with enterprise-grade security.
 
 ---
 
@@ -32,7 +32,7 @@ A production-ready secure microservices template using **Spring Boot 4.x**, **Ke
 - **Prometheus Metrics** - JVM, HTTP, and circuit breaker metrics with Grafana dashboards
 - **Robust API Error Handling** - Jakarta Validation on DTOs with standardized [RFC 7807 Problem Details](https://datatracker.ietf.org/doc/html/rfc7807) responses.
 - **OpenAPI Documentation** - Swagger UI with Gateway aggregation
-- **Angular 18 UI** - Modern standalone components with Angular Material
+- **Angular 21 UI** - Modern standalone components with Angular Material
 - **Keycloak Integration** - Enterprise identity provider with user management
 - **Testcontainers** - Reliable integration testing with ephemeral databases
 
@@ -143,7 +143,7 @@ npm start
 
 ```
 root_folder/
-├── angular-ui/                 # Angular 18 Web Application
+├── angular-ui/                 # Angular 21 Web Application
 │   ├── src/app/
 │   │   ├── core/               # Auth service, interceptors, guards
 │   │   ├── features/           # Login, Dashboard, Profile, Orders
@@ -195,7 +195,7 @@ common-core (zero dependencies)
 
 | Service             | Port | Technology                     | Purpose                                    |
 |---------------------|------|--------------------------------|--------------------------------------------|
-| **Angular UI**      | 4200 | Angular 18, Material           | Web application                            |
+| **Angular UI**      | 4200 | Angular 21, Material           | Web application                            |
 | **BFF**             | 8081 | Spring Boot 4.x (MVC)          | OAuth2 client, session management          |
 | **Gateway**         | 8888 | Spring Cloud Gateway (WebFlux) | API routing, JWT validation, rate limiting |
 | **Profile Service** | 8082 | Spring Boot 4.x                | User profile CRUD                          |
@@ -516,7 +516,7 @@ npm test                       # Run tests
 
 | Layer         | Technology                                           |
 |---------------|------------------------------------------------------|
-| Frontend      | Angular 18, Angular Material, RxJS, Signals          |
+| Frontend      | Angular 21, Angular Material, RxJS, Signals          |
 | BFF           | Spring Boot 4.x (MVC), Spring Security OAuth2 Client |
 | Gateway       | Spring Cloud Gateway WebFlux (Spring Boot 3.x)       |
 | Services      | Spring Boot 4.x (MVC), Spring Data JPA               |

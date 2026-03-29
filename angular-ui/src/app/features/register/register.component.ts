@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -13,10 +13,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RegisterService, RegisterRequest } from './register.service';
 
 @Component({
-  selector: 'app-register',
-  standalone: true,
-  imports: [
-    CommonModule,
+    selector: 'app-register',
+    imports: [
     FormsModule,
     RouterModule,
     MatCardModule,
@@ -27,8 +25,8 @@ import { RegisterService, RegisterRequest } from './register.service';
     MatIconModule,
     MatProgressSpinnerModule,
     MatSnackBarModule
-  ],
-  template: `
+],
+    template: `
     <div class="register-container">
       <mat-card class="register-card">
         <mat-card-header>
@@ -116,7 +114,7 @@ import { RegisterService, RegisterRequest } from './register.service';
       </mat-card>
     </div>
   `,
-  styles: [`
+    styles: [`
     .register-container {
       display: flex;
       justify-content: center;

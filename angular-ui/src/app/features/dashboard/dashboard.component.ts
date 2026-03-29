@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,16 +9,14 @@ import { ProfileService } from '../profile/profile.service';
 import { OrdersService } from '../orders/orders.service';
 
 @Component({
-  selector: 'app-dashboard',
-  standalone: true,
-  imports: [
-    CommonModule,
+    selector: 'app-dashboard',
+    imports: [
     RouterModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule
-  ],
-  template: `
+],
+    template: `
     <h1>Dashboard</h1>
 
     @if (authService.currentUser(); as user) {
@@ -69,7 +67,7 @@ import { OrdersService } from '../orders/orders.service';
       </mat-card>
     </div>
   `,
-  styles: [`
+    styles: [`
     h1 {
       margin-bottom: 24px;
     }
@@ -111,7 +109,7 @@ export class DashboardComponent implements OnInit {
 
     try {
       const orders = await this.ordersService.getOrders();
-      this.orderCount.set(orders.length);
+      this.orderCount.set(orders.totalElements);
     } catch {
       this.orderCount.set(0);
     }
