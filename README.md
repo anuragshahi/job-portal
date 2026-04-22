@@ -1,6 +1,6 @@
-# Enterprise Spring Microservices Template
+# Job Portal
 
-A production-ready secure microservices template using **Spring Boot 4.x**, **Keycloak**, and **Angular 21**. Designed to support both Web (BFF pattern) and Mobile (direct JWT) applications with enterprise-grade security.
+A production-ready secure job portal application using **Spring Boot 4.x**, **Keycloak**, and **Angular 21**. Designed to support both Web (BFF pattern) and Mobile (direct JWT) applications with enterprise-grade security.
 
 ---
 
